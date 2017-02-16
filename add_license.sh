@@ -83,17 +83,17 @@ function Searchfile()
         fi;
 
         filename=$dirname
-        if [[ -f "$filename" ]];then
+        if [[ -f "$filename" ]]; then
             for i in $( seq 0 $n );do echo -n ' ';done;echo " |--$filename"
-            grep -rn $LICENSE_SEARCH_TOKEN $filename
-            if [ $? = 1 ];then
-                if [ "${filename##*.}" = "c" -o "${filename##*.}" = "cpp" -o "${filename##*.}" = "java" ];then
+            grep -rn $LICENSE_TOKEN $filename >/dev/null
+            if [ $? -eq 1 ]; then
+                if [ "${filename##*.}" = "c" -o "${filename##*.}" = "cpp" -o "${filename##*.}" = "java" ]; then
                     add_license $C_LICENSE $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
-                elif [ "${filename##*.}" = "yml" -o "${filename##*.}" = "yaml" -o "${filename##*.}" = "sh" ];then
+                elif [ "${filename##*.}" = "py" -o "${filename##*.}" = "yml" -o "${filename##*.}" = "yaml" -o "${filename##*.}" = "sh" ]; then
                     add_license $BASH_LICENSE $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
-                elif [ "${filename##*.}" = "xml" ];then
+                elif [ "${filename##*.}" = "xml" ]; then
                     add_license $XML_LICENSE $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 fi;
