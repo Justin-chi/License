@@ -5,7 +5,19 @@ LICENSE_TOKEN="http://www.apache.org/licenses/LICENSE-2.0"
 
 function get_first_author()
 {
-    git log --reverse --pretty=format:"%ae" $1 | head -1
+    author=$(git log --reverse --pretty=format:"%ae" $1 | head -1)
+    substring=$(git log --reverse --pretty=format:"%ae" $1 | head -1 | awk -F@ '{print $2}')
+    case $substring in
+     huawei*)
+       echo "HUAWEI TECHNOLOGIES CO.,LTD"
+          ;;
+     orange*)
+       echo "Orange"
+          ;;
+     *)
+       echo "$author"
+          ;;
+     esac
 }
 
 function get_latest_year()
@@ -60,7 +72,7 @@ function add_c_license()
     C_LICENSE="c_license_header.tmp"
     author=`get_first_author "$1"`
     year=`get_latest_year "$1"`
-    gen_c_license $C_LICENSE $year $author
+    gen_c_license $C_LICENSE $year "$author"
     cat $C_LICENSE $1 > $TMP_FILE
     rm -f $C_LICENSE
     mv $TMP_FILE $1
@@ -71,7 +83,7 @@ function add_xml_license()
     XML_LICENSE="xml_license_header.tmp"
     author=`get_first_author "$1"`
     year=`get_latest_year "$1"`
-    gen_xml_license $XML_LICENSE $year $author
+    gen_xml_license $XML_LICENSE $year "$author"
     cat $XML_LICENSE $1 > $TMP_FILE
     rm -f $XML_LICENSE
     mv $TMP_FILE $1
@@ -82,10 +94,17 @@ function add_bash_license()
     BASH_LICENSE="bash_license_header.tmp"
     author=`get_first_author "$1"`
     year=`get_latest_year "$1"`
-    gen_bash_license $BASH_LICENSE $year $author
-    cat $BASH_LICENSE $1 > $TMP_FILE
+    gen_bash_license $BASH_LICENSE $year "$author"
+    cat $1 | head -1 | grep "#!" > /dev/null
+    if [ $? -eq 0 ]; then
+        #insert 2
+        sed -i "1 r $BASH_LICENSE" $1
+    else
+        #sed -i "1 R $BASH_LICENSE" $1
+        cat $BASH_LICENSE $1 > $TMP_FILE
+        mv $TMP_FILE $1
+    fi
     rm -f $BASH_LICENSE
-    mv $TMP_FILE $1
 }
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]; then  
@@ -102,12 +121,6 @@ n=0
 function Searchfile()  
 {  
     cd $1  
-    
-#    filelist=$(ls -l | awk '{print $9}')  
-#    for filename in $filelist  
-#    do  
-#        echo  $filename
-#    done  
     
     dirlist=$(ls)  
     for dirname in $dirlist
