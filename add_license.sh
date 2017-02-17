@@ -1,26 +1,23 @@
 #!/bin/bash
 
-LICENSE_TMP_DIR=`cd ${BASH_SOURCE[0]%/*}/;pwd`
-export LICENSE_TMP_DIR
-C_LICENSE="${LICENSE_TMP_DIR}/c_license_header.tmp"
-XML_LICENSE="${LICENSE_TMP_DIR}/xml_license_header.tmp"
-BASH_LICENSE="${LICENSE_TMP_DIR}/bash_license_header.tmp"
 TMP_FILE=tmp.file
-LICENSE_YEAR="2016"
-LICENSE_HOLDER="HUAWEI TECHNOLOGIES CO.,LTD"
 LICENSE_TOKEN="http://www.apache.org/licenses/LICENSE-2.0"
 
-function add_license()
+function get_first_author()
 {
-    cat $1 $2 > $TMP_FILE
-    rm -f $2
-    mv $TMP_FILE $2
-#     echo "\nadd license testing"
+    git log --reverse --pretty=format:"%ae" $1 | head -1
 }
 
-cat << EOF >${C_LICENSE}
+function get_latest_year()
+{
+    git log --pretty=format:"%ad" $1 | head -1 | awk '{print $5}'
+}
+
+function gen_c_license()
+{
+cat << EOF >$1
 /******************************************************************************* 
- * Copyright (c) ${LICENSE_YEAR} ${LICENSE_HOLDER} and others. 
+ * Copyright (c) $2 $3 and others. 
  *
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Apache License, Version 2.0 
@@ -28,10 +25,13 @@ cat << EOF >${C_LICENSE}
  * http://www.apache.org/licenses/LICENSE-2.0 
  *******************************************************************************/ 
 EOF
+}
 
-cat << EOF >${XML_LICENSE}
+function gen_xml_license()
+{
+cat << EOF >$1
 <!--
- Copyright (c) ${LICENSE_YEAR} ${LICENSE_HOLDER} and others.
+ Copyright (c) $2 $3 and others.
 
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the Apache License, Version 2.0
@@ -39,15 +39,54 @@ cat << EOF >${XML_LICENSE}
  http://www.apache.org/licenses/LICENSE-2.0
 -->
 EOF
+}
 
-cat << EOF >${BASH_LICENSE}
-# Copyright (c) ${LICENSE_YEAR} ${LICENSE_HOLDER} and others.
+function gen_bash_license()
+{
+cat << EOF >$1
+##############################################################################
+# Copyright (c) $2 $3 and others.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Apache License, Version 2.0
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
 EOF
+}
+
+function add_c_license()
+{
+    C_LICENSE="c_license_header.tmp"
+    author=`get_first_author "$1"`
+    year=`get_latest_year "$1"`
+    gen_c_license $C_LICENSE $year $author
+    cat $C_LICENSE $1 > $TMP_FILE
+    rm -f $C_LICENSE
+    mv $TMP_FILE $1
+}
+
+function add_xml_license()
+{
+    XML_LICENSE="xml_license_header.tmp"
+    author=`get_first_author "$1"`
+    year=`get_latest_year "$1"`
+    gen_xml_license $XML_LICENSE $year $author
+    cat $XML_LICENSE $1 > $TMP_FILE
+    rm -f $XML_LICENSE
+    mv $TMP_FILE $1
+}
+
+function add_bash_license()
+{
+    BASH_LICENSE="bash_license_header.tmp"
+    author=`get_first_author "$1"`
+    year=`get_latest_year "$1"`
+    gen_bash_license $BASH_LICENSE $year $author
+    cat $BASH_LICENSE $1 > $TMP_FILE
+    rm -f $BASH_LICENSE
+    mv $TMP_FILE $1
+}
 
 if [[ -z "$1" ]] || [[ ! -d "$1" ]]; then  
     echo "The directory is empty or not exist!"  
@@ -88,13 +127,13 @@ function Searchfile()
             grep -rn $LICENSE_TOKEN $filename >/dev/null
             if [ $? -eq 1 ]; then
                 if [ "${filename##*.}" = "c" -o "${filename##*.}" = "cpp" -o "${filename##*.}" = "java" ]; then
-                    add_license $C_LICENSE $filename 
+                    add_c_license $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 elif [ "${filename##*.}" = "py" -o "${filename##*.}" = "yml" -o "${filename##*.}" = "yaml" -o "${filename##*.}" = "sh" ]; then
-                    add_license $BASH_LICENSE $filename 
+                    add_bash_license $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 elif [ "${filename##*.}" = "xml" ]; then
-                    add_license $XML_LICENSE $filename 
+                    add_xml_license $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 fi;
             fi;
