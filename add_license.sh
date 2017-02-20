@@ -27,6 +27,9 @@ function get_first_author()
      orange*)
        echo "Orange"
           ;;
+     zte*)
+       echo "ZTE Corporation"
+          ;;
      *)
        echo "$author"
           ;;
@@ -171,3 +174,4 @@ function Searchfile()
 }  
   
 Searchfile $nowdir 
+
