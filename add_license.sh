@@ -49,6 +49,7 @@ cat << EOF >$1
  * which accompanies this distribution, and is available at 
  * http://www.apache.org/licenses/LICENSE-2.0 
  *******************************************************************************/ 
+
 EOF
 }
 
@@ -63,6 +64,7 @@ cat << EOF >$1
  which accompanies this distribution, and is available at
  http://www.apache.org/licenses/LICENSE-2.0
 -->
+
 EOF
 }
 
@@ -77,6 +79,7 @@ cat << EOF >$1
 # which accompanies this distribution, and is available at
 # http://www.apache.org/licenses/LICENSE-2.0
 ##############################################################################
+
 EOF
 }
 
@@ -159,7 +162,7 @@ function Searchfile()
                     add_bash_license $filename 
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 elif [ "${filename##*.}" = "xml" ]; then
-                    add_xml_license $filename 
+                    add_xml_license $filename
                     for i in $( seq 0 $n );do echo -n ' ';done;echo " |--add license for $filename... "
                 fi;
             fi;
