@@ -175,3 +175,6 @@ function Searchfile()
   
 Searchfile $nowdir 
 
+# Revert changes of skipped files, e.g. __init__.py
+
+git checkout \*\*/__init__.py
