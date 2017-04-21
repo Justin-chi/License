@@ -27,6 +27,9 @@ function get_first_author()
      orange*)
        echo "Orange"
           ;;
+     zte*)
+       echo "ZTE Corporation"
+          ;;
      *)
        echo "$author"
           ;;
@@ -171,3 +174,7 @@ function Searchfile()
 }  
   
 Searchfile $nowdir 
+
+# Revert changes of skipped files, e.g. __init__.py
+
+git checkout \*\*/__init__.py
